@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozcestník Předmětů | Studium</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            color: #0f172a;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .card h2 {
+            margin: 10px 0;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Moje Studijní Materiály</h1>
+    <div class="grid">
+        
+        <!-- Přenos dat -->
+        <a href="https://n1ghtdarkness.github.io/PD/" class="card">
+            <div class="icon">📡</div>
+            <h2>Přenos dat</h2>
+            <p>Protokoly, modulace a síťová komunikace.</p>
+        </a>
+
+        <!-- Měření v IKT -->
+        <a href="https://n1ghtdarkness.github.io/MIKT/" class="card">
+            <div class="icon">📊</div>
+            <h2>Měření v IKT</h2>
+            <p>Laboratorní úlohy a diagnostika ICT systémů.</p>
+        </a>
+
+        <!-- Radiové sítě -->
+        <a href="https://n1ghtdarkness.github.io/RS/" class="card">
+            <div class="icon">📶</div>
+            <h2>Radiové sítě</h2>
+            <p>Bezdrátové technologie, šíření signálu a antény.</p>
+        </a>
+
+    </div>
+</div>
+
+</body>
+</html>
