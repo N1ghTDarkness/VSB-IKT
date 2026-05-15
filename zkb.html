@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Skripta k ZKB Zkoušce</title>
+    <style>
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --text: #202124; --accent: #34a853; --warning: #ea4335; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text); }
+        
+        #sidebar { width: 320px; background: #fff; border-right: 1px solid #dadce0; display: flex; flex-direction: column; padding: 3px; }
+        .nav-grid { display: flex; flex-direction: column; gap: 4px; margin-top: 15px; }
+        .nav-item { padding: 8px 12px; border: 1px solid #dadce0; border-radius: 6px; cursor: pointer; font-size: 0.85em; transition: 0.2s; background: white; text-align: left; line-height: 1.3; }
+        .nav-item:hover { background: #f1f3f4; border-color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        #main-content { flex: 1; padding: 25px; overflow-y: auto; scroll-behavior: smooth; }
+        .header { background: var(--primary); color: white; padding: 30px; border-radius: 0 0 15px 15px; margin: -40px -40px 30px -40px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        .study-card { background: #fff; border-radius: 12px; padding: 35px; margin-bottom: 50px; border: 1px solid #dadce0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .study-card h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.4em; }
+        
+        .key-points { list-style-type: none; padding: 0; }
+        .key-points li { margin-bottom: 12px; padding-left: 25px; position: relative; line-height: 1.5; }
+        .key-points li::before { content: '•'; color: var(--accent); font-weight: bold; font-size: 1.5em; position: absolute; left: 0; top: -5px; }
+        
+        .expert-tip { background: #e8f0fe; border-left: 5px solid var(--primary); padding: 15px; margin-top: 20px; border-radius: 4px; font-size: 0.95em; }
+        .formula { background: #f1f3f4; padding: 3px 8px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; color: #c62828; font-weight: bold; }
+        .category-label { font-size: 0.7em; text-transform: uppercase; color: #70757a; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        .home-link { display: inline-block; margin-bottom: 20px; color: var(--primary); text-decoration: none; font-weight: bold; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    
+    <h3>Okruhy otázek</h3>
+    <div id="navGrid" class="nav-grid"></div>
+    <div class="external-links">
+        <h3>Projekty</h3>
+        <a href="https://n1ghtdarkness.github.io/VSB-IKT/"  class="side-link"><strong>🏠 VSB-IKT</strong>Materiály VŠB</a><br>
+        <a href="https://n1ghtdarkness.github.io/PD/"  class="side-link"><strong>📊 Přenos Dat</strong>Materiály PD</a>
+    </div>
+</div>
+
+<div id="main-content">
+    <div class="header">
+        <h1>Skripta pro ZKB zkoušku 2026</h1>
+    </div>
+    <div id="content-area"></div>
+</div>
+
+<script>
+const topics = [
+    {
+        title: "1. Velikost klíče DES a prostor klíčů",
+        points: [
+            "DES používá klíč o délce 64 bitů, ale efektivní délka je pouze 56 bitů (8 bitů je paritních)[cite: 3].",
+            "Velikost prostoru klíčů je tedy <span class='formula'>2^56</span> (cca 7,2 * 10^16 kombinací)[cite: 3].",
+            "Tento prostor je v současnosti považován za nedostatečný vůči brute-force útokům[cite: 4].",
+            "Moderní hardware dokáže klíč DES prolomit v řádu hodin či minut[cite: 4]."
+        ],
+        tip: "Nezapomeňte zmínit, že právě kvůli krátkému klíči byl DES nahrazen standardem AES[cite: 4]."
+    },
+    {
+        title: "2. Prostor klíčů u Polybiovy šifry",
+        points: [
+            "Pro standardní mřížku 5x5 (25 znaků) je klíčem konkrétní rozložení abecedy v tabulce[cite: 5].",
+            "Počet možných rozložení je dán faktoriálem počtu polí, tedy <span class='formula'>25!</span>[cite: 5].",
+            "To odpovídá přibližně 1,55 * 10^25 možných klíčů[cite: 5].",
+            "I přes velký prostor klíčů je šifra slabá vůči frekvenční analýze[cite: 5]."
+        ],
+        tip: "Zdůvodněním je permutace 25 prvků bez opakování do 25 pozic mřížky[cite: 5]."
+    },
+    {
+        title: "3. Faktorizace 700bitového RSA modulu",
+        points: [
+            "Tvrzení, že je to nad možnosti moderní techniky, je nepravdivé[cite: 6, 7].",
+            "Již v roce 2009 byla veřejně provedena faktorizace 768bitového RSA modulu[cite: 7].",
+            "Současné standardy doporučují pro bezpečnost délky modulu 2048 až 3072 bitů[cite: 7]."
+        ],
+        tip: "Faktorizace je základním problémem, na kterém stojí bezpečnost RSA – pokud najdeme činitele, známe soukromý klíč[cite: 6]."
+    },
+    {
+        title: "4. Inverzní prvky modulo 11",
+        points: [
+            "Multiplikativně inverzní (x * y ≡ 1 mod 11): (1,1), (2,6), (3,4), (5,9), (7,8), (10,10)[cite: 9].",
+            "Aditivně inverzní (x + y ≡ 0 mod 11): (1,10), (2,9), (3,8), (4,7), (5,6)[cite: 10].",
+            "Modulo 11 je prvočíslo, což zaručuje existenci multiplikativní inverze pro všechna nenulová čísla[cite: 8]."
+        ],
+        tip: "U aditivní inverze stačí najít doplněk do hodnoty modula (11)[cite: 10]."
+    },
+    {
+        title: "5. Lavinový efekt a Úplnost",
+        points: [
+            "Avalanche effect: malá změna vstupu (1 bit) způsobí změnu cca poloviny bitů na výstupu[cite: 12].",
+            "Completeness: každý bit šifrového textu závisí na všech bitech otevřeného textu a klíče[cite: 13].",
+            "Tyto vlastnosti zajišťují, že v šifře nelze vysledovat statistické závislosti[cite: 11]."
+        ],
+        tip: "Lavinový efekt je klíčový pro odolnost proti diferenciální kryptoanalýze[cite: 12]."
+    },
+    {
+        title: "6. Bezpečnostní služby",
+        points: [
+            "Důvěrnost: data smí číst pouze oprávněný příjemce[cite: 14].",
+            "Integrita: zajištění, že data nebyla cestou nepozorovaně změněna[cite: 14].",
+            "Autentizace: ověření identity komunikujících stran nebo původu zprávy[cite: 14].",
+            "Nepopiratelnost: autor nemůže zpětně popřít vytvoření nebo odeslání zprávy[cite: 14]."
+        ],
+        tip: "Služby se navzájem doplňují, například digitální podpis řeší integritu, autentizaci i nepopiratelnost[cite: 14]."
+    },
+    {
+        title: "7. Diffie-Hellmanův protokol (DH)",
+        points: [
+            "Slouží k bezpečnému ustavení společného tajného klíče přes nezabezpečený kanál[cite: 15].",
+            "Strany si veřejně vymění hodnoty g^a mod p a g^b mod p[cite: 15].",
+            "Společný klíč K se vypočítá jako (g^b)^a mod p = (g^a)^b mod p[cite: 15].",
+            "Bezpečnost je založena na obtížnosti výpočtu diskrétního logaritmu[cite: 15]."
+        ],
+        tip: "DH sám o sobě neřeší autentizaci, je tedy náchylný k útokům Man-in-the-Middle[cite: 15]."
+    },
+    {
+        title: "8. Certifikát veřejného klíče",
+        points: [
+            "Spis, který potvrzuje identitu majitele a k ní vázaný veřejný klíč[cite: 16].",
+            "Struktura (dle X.509): verze, sériové číslo, jméno majitele, veřejný klíč, podpis CA[cite: 16].",
+            "Vydává jej Certifikační autorita (CA), která jej stvrzuje svým digitálním podpisem[cite: 17].",
+            "Certifikát nikdy neobsahuje soukromý klíč, ten musí znát pouze majitel[cite: 17]."
+        ],
+        tip: "Bez certifikátu bychom neměli jistotu, komu veřejný klíč, který používáme, skutečně patří[cite: 16]."
+    },
+    {
+        title: "9. Režim Counter Mode (CTR)",
+        points: [
+            "Bloková šifra pracuje jako proudová – šifruje hodnotu čítače (counter)[cite: 18].",
+            "Výsledek šifrování čítače se pak pomocí XOR přičte k otevřenému textu[cite: 18].",
+            "Výhody: paralelizace, náhodný přístup, není potřeba padding[cite: 18].",
+            "Nevýhody: nesmí dojít k opakování kombinace klíče a čítače (ztráta důvěrnosti)[cite: 18]."
+        ],
+        tip: "CTR je dnes velmi oblíbený v rychlých síťových přenosech díky své efektivitě[cite: 18]."
+    },
+    {
+        title: "10. Generátory náhodných čísel pro krypto",
+        points: [
+            "Musí mít vysokou entropii a být statisticky rovnoměrné[cite: 19].",
+            "Odolnost proti predikci: ze znalosti minulých bitů nelze určit bit následující[cite: 19].",
+            "Odolnost proti rekonstrukci: ani při kompromitaci vnitřního stavu nelze dopočítat minulost[cite: 19]."
+        ],
+        tip: "V kryptografii používáme CSPRNG (Cryptographically Secure Pseudo-Random Number Generator)[cite: 19]."
+    },
+    {
+        title: "11. Bezpečnost RSA a faktorizace",
+        points: [
+            "RSA je jednosměrná funkce s padacími dvířky (trapdoor)[cite: 20].",
+            "Bezpečnost přímo závisí na tom, že rozklad velkého čísla na prvočísla je velmi těžký[cite: 20].",
+            "Pokud by existoval rychlý způsob faktorizace, RSA by okamžitě přestalo být bezpečné[cite: 20]."
+        ],
+        tip: "Zatímco násobení prvočísel je snadné, zpětný proces (faktorizace) je pro klasické PC extrémně pomalý[cite: 20]."
+    },
+    {
+        title: "12. Odolnost hašovacích funkcí",
+        points: [
+            "Slabá odolnost vůči kolizi: pro zadané x je těžké najít y tak, aby H(x) = H(y)[cite: 21].",
+            "Silná odolnost vůči kolizi: je těžké najít jakoukoli dvojici x, y tak, aby H(x) = H(y)[cite: 21].",
+            "Hašovací funkce musí být vždy jednosměrná (nepředvídatelná)[cite: 21]."
+        ],
+        tip: "Silná odolnost je náročnější vlastnost a chrání např. proti narozeninovému útoku[cite: 21]."
+    },
+    {
+        title: "13. Délky klíčů AES vs RSA",
+        points: [
+            "AES (symetrická): 128, 192 nebo 256 bitů je dostatečných[cite: 22].",
+            "RSA (asymetrická): 2048, 3072 nebo více bitů je nutných[cite: 22].",
+            "Rozdíl je v tom, že na RSA existují efektivnější útoky (GNFS) než jen hrubá síla[cite: 23]."
+        ],
+        tip: "Délky klíčů nejsou přímo srovnatelné; 128 bitů AES je zhruba stejně silné jako 3072 bitů RSA[cite: 22, 23]."
+    },
+    {
+        title: "14. Brute-force útok",
+        points: [
+            "Útok hrubou silou zkouší systematicky všechny možné kombinace klíčů[cite: 24].",
+            "Složitost útoku roste exponenciálně s délkou klíče (<span class='formula'>2^n</span>)[cite: 24].",
+            "Přidáním jediného bitu do délky klíče se náročnost útoku zdvojnásobí[cite: 24]."
+        ],
+        tip: "Dnešní standardy (např. AES-128) jsou proti čistému brute-force útoku imunní[cite: 24]."
+    },
+    {
+        title: "15. Jednosměrná funkce",
+        points: [
+            "Funkce y = f(x), kterou lze snadno vypočítat, ale nelze z y efektivně zjistit x[cite: 25].",
+            "Příklad 1: Hašovací funkce (např. otisk hesla v databázi)[cite: 25].",
+            "Příklad 2: Modulární umocňování (základ pro DH a RSA)[cite: 25]."
+        ],
+        tip: "Většina asymetrické kryptografie stojí právě na existenci jednosměrných funkcí[cite: 25]."
+    },
+    {
+        title: "16. Symetrické vs. Asymetrické šifrování",
+        points: [
+            "Symetrické: jeden klíč pro oba, velmi rychlé, problém s distribucí klíče[cite: 26].",
+            "Asymetrické: dvojice klíčů (veřejný/soukromý), pomalé, snadná správa klíčů[cite: 26].",
+            "V praxi se kombinují: asymetricky se vymění klíč, symetricky se šifrují data[cite: 26]."
+        ],
+        tip: "Tomuto spojení říkáme hybridní kryptosystém (např. HTTPS/TLS)[cite: 26]."
+    },
+    {
+        title: "17. Autentizace, autorizace a nepopiratelnost",
+        points: [
+            "Autentizace: 'Jste to skutečně vy?' (ověření identity)[cite: 27].",
+            "Autorizace: 'Máte právo smazat tento soubor?' (ověření oprávnění)[cite: 27].",
+            "Nepopiratelnost: 'Nemůžete tvrdit, že jste to neposlal' (průkaznost úkonu)[cite: 27]."
+        ],
+        tip: "Autentizace musí logicky předcházet autorizaci[cite: 27]."
+    },
+    {
+        title: "18. Digitální podpis",
+        points: [
+            "Zajišťuje autenticitu původu, integritu a nepopiratelnost[cite: 28].",
+            "Vytváří se šifrováním haše zprávy pomocí soukromého klíče odesílatele[cite: 28].",
+            "Ověřuje se dešifrováním podpisu veřejným klíčem a porovnáním hašů[cite: 28]."
+        ],
+        tip: "Digitální podpis nezajišťuje důvěrnost – zpráva je stále čitelná[cite: 28, 29]."
+    },
+    {
+        title: "19. Útok Man-in-the-Middle (MITM)",
+        points: [
+            "Útočník se vkládá do komunikace a vydává se za obě strany zároveň[cite: 30].",
+            "Lze jej použít proti protokolům bez autentizace (základní DH, HTTP)[cite: 30].",
+            "Prevencí je použití certifikátů a digitálních podpisů[cite: 30]."
+        ],
+        tip: "Typickým příkladem je falešná Wi-Fi síť v kavárně zachytávající hesla[cite: 30]."
+    },
+    {
+        title: "20. Proudová vs. Bloková šifra",
+        points: [
+            "Proudová: šifruje bit po bitu, velmi rychlá, vhodná pro streamování (např. ChaCha20)[cite: 31].",
+            "Bloková: zpracovává data po větších kusech (blocích), typicky 128 bitů (např. AES)[cite: 31].",
+            "Blokové šifry jsou univerzálnější díky různým režimům činnosti[cite: 31]."
+        ],
+        tip: "Proudové šifry jsou náchylné na chyby při znovupoužití klíče[cite: 31]."
+    },
+    {
+        title: "21. Režim CBC (Cipher Block Chaining)",
+        points: [
+            "Každý blok se před šifrováním zřetězí (XOR) s předchozím šifrovým blokem[cite: 32].",
+            "První blok se kombinuje s Inicializačním vektorem (IV)[cite: 32].",
+            "Chyba v jednom bloku šifrového textu ovlivní dešifrování dvou bloků[cite: 32]."
+        ],
+        tip: "CBC odstraňuje vzory v datech, což je hlavní slabina režimu ECB[cite: 32]."
+    },
+    {
+        title: "22. Entropie v kryptografii",
+        points: [
+            "Míra neurčitosti nebo 'překvapení' v datech[cite: 33].",
+            "Vysoká entropie znamená, že data jsou náhodná a klíč nelze uhodnout[cite: 33].",
+            "Používá se k měření síly hesel a kvality generátorů náhodných čísel[cite: 33]."
+        ],
+        tip: "Heslo '123456' má velmi nízkou entropii, i když má 6 znaků[cite: 33]."
+    },
+    {
+        title: "23. Rozdíl mezi slabou a silnou odolností (haš)",
+        points: [
+            "Slabá: útočník zná zprávu a hledá k ní alternativu se stejným hašem[cite: 34].",
+            "Silná: útočník má volné ruce a hledá jakékoli dvě zprávy se stejným hašem[cite: 34].",
+            "Silná odolnost je kritická pro digitální podpisy, aby nešlo podvrhnout dokument[cite: 34]."
+        ],
+        tip: "Nalezení silné kolize je statisticky mnohem snazší (viz narozeninový paradox)[cite: 34]."
+    },
+    {
+        title: "24. Důležitost RNG v kryptografii",
+        points: [
+            "RNG tvoří základ pro generování klíčů, noncí a IV[cite: 35].",
+            "Pokud je RNG předvídatelný, celý systém se hroutí, i kdyby byl algoritmus dokonalý[cite: 35].",
+            "Mnoho historických průlomů v šifrách bylo způsobeno právě špatným zdrojem náhody[cite: 35]."
+        ],
+        tip: "V praxi se kombinuje hardwarová náhoda (šum) s matematickými algoritmy[cite: 35]."
+    },
+    {
+        title: "25. Forward Secrecy (Dopředná bezpečnost)",
+        points: [
+            "Vlastnost zajišťující, že dřívější relace nelze dešifrovat ani po úniku hlavního klíče[cite: 36].",
+            "Pro každé spojení se generuje unikátní dočasný klíč (např. pomocí DHE)[cite: 36].",
+            "Klíče se po skončení relace smažou[cite: 36]."
+        ],
+        tip: "Forward Secrecy je dnes standardem v moderním HTTPS (TLS 1.3)[cite: 36]."
+    },
+    {
+        title: "26. Saltování hesel",
+        points: [
+            "Přidání náhodného řetězce (soli) k heslu před jeho zahašováním[cite: 37].",
+            "Chrání před útoky pomocí duhových tabulek (rainbow tables)[cite: 37].",
+            "Zajišťuje, že dva uživatelé se stejným heslem mají v databázi jiný haš[cite: 37]."
+        ],
+        tip: "Sůl se ukládá v databázi v otevřené podobě spolu s hašem[cite: 37]."
+    },
+    {
+        title: "27. Kerckhoffsův princip",
+        points: [
+            "Bezpečnost systému nesmí záviset na tajnosti algoritmu[cite: 38].",
+            "Vše o systému může být veřejné, kromě samotného klíče[cite: 38].",
+            "Umožňuje veřejný audit a standardizaci šifer[cite: 38]."
+        ],
+        tip: "Opakem je 'Security through obscurity', což je v kryptografii považováno za chybu[cite: 38]."
+    },
+    {
+        title: "28. Služby a kryptografické mechanismy",
+        points: [
+            "Integrita: zajišťuje se pomocí hašovacích funkcí nebo MAC[cite: 39].",
+            "Důvěrnost: zajišťuje se symetrickým nebo asymetrickým šifrováním[cite: 39].",
+            "Autenticita a Nepopiratelnost: zajišťuje se digitálním podpisem[cite: 39]."
+        ],
+        tip: "Tyto služby se často kombinují do jednoho celku, např. Authenticated Encryption[cite: 39]."
+    },
+    {
+        title: "29. MAC vs. Digitální podpis",
+        points: [
+            "MAC: symetrický klíč, rychlý, ověřit ho může kdokoli, kdo ho umí vytvořit[cite: 40].",
+            "Digitální podpis: asymetrický klíč, nepopiratelný, podepsat může jen autor[cite: 40].",
+            "MAC nemůže poskytnout nepopiratelnost, protože obě strany mají stejný klíč[cite: 40]."
+        ],
+        tip: "HMAC je nejpoužívanější implementace MAC kódu[cite: 40]."
+    },
+    {
+        title: "30. Jeden mechanismus pro vše?",
+        points: [
+            "Ne, jediný mechanismus nestačí[cite: 41].",
+            "Např. šifrování chrání důvěrnost, ale útočník může šifrový text poškodit (porušit integritu)[cite: 41].",
+            "K zajištění všech služeb je nutné kombinovat více technik najednou[cite: 41]."
+        ],
+        tip: "Příkladem komplexního řešení je protokol TLS v prohlížeči[cite: 41]."
+    },
+    {
+        title: "31. Nebezpečí ukládání pouhého H(heslo)",
+        points: [
+            "Útočník může použít předpočítané databáze hašů (rainbow tables)[cite: 42].",
+            "Slovníkový útok na běžná hesla proběhne v řádu milisekund[cite: 42].",
+            "Bez soli jsou identická hesla v databázi okamžitě vidět[cite: 42]."
+        ],
+        tip: "Dnes se používají pomalé hašovací funkce jako Argon2 nebo bcrypt[cite: 42]."
+    },
+    {
+        title: "32. Nutnost jednosměrnosti haše",
+        points: [
+            "Zabraňuje útočníkovi získat původní heslo z jeho otisku v databázi[cite: 43].",
+            "Umožňuje ověření dat, aniž bychom museli znát jejich obsah[cite: 43]."
+        ],
+        tip: "Pokud by haš nebyl jednosměrný, neplnil by svou roli v digitálním podpisu[cite: 43]."
+    },
+    {
+        title: "33. Ověřování digitálního podpisu",
+        points: [
+            "Příjemce spočítá haš přijaté zprávy[cite: 44].",
+            "Dešifruje podpis pomocí veřejného klíče odesílatele, čímž získá původní haš[cite: 44].",
+            "Oba haše porovná – pokud se shodují, zpráva je pravá a nezměněná[cite: 44]."
+        ],
+        tip: "Klíčem k důvěře je zde právě veřejný klíč odesílatele[cite: 44]."
+    },
+    {
+        title: "34. Problém kolizí u hašů",
+        points: [
+            "Ano, je to problém pro digitální podpisy a certifikáty[cite: 45].",
+            "Pokud útočník najde kolizi, může vytvořit dva dokumenty se stejným podpisem[cite: 45].",
+            "Příklad: podepsání smlouvy na 100 Kč, kterou útočník nahradí verzí na 1 000 000 Kč[cite: 45]."
+        ],
+        tip: "Proto se historicky opustily funkce jako MD5 nebo SHA-1[cite: 45]."
+    },
+    {
+        title: "35. Digitální podpis místo šifrování?",
+        points: [
+            "Ne, podpis nechrání zprávu před přečtením[cite: 46].",
+            "Zpráva podepsaná digitálním podpisem je stále v otevřeném (čitelném) tvaru[cite: 46].",
+            "Podpis slouží k ověření identity a integrity, nikoli k utajení[cite: 46]."
+        ],
+        tip: "Pokud chcete obojí, musíte zprávu podepsat i zašifrovat[cite: 46]."
+    },
+    {
+        title: "36. Režimy činnosti blokových šifer",
+        points: [
+            "Slouží k bezpečnému šifrování dat, která jsou delší než jeden blok šifry[cite: 47].",
+            "Zajišťují, aby stejné bloky textu nevypadaly v šifře stejně[cite: 47].",
+            "Různé režimy nabízejí různé vlastnosti (paralelizace, odolnost proti chybám)[cite: 47]."
+        ],
+        tip: "Bez režimů by bloková šifra byla jen jednoduchou substituční tabulkou[cite: 47]."
+    },
+    {
+        title: "37. Útoky na bezpečnostní služby",
+        points: [
+            "Útok na Integritu: Man-in-the-Middle (změna zprávy)[cite: 49].",
+            "Útok na Dostupnost: DoS (zahlcení služby požadavky)[cite: 50].",
+            "Útok na Autenticitu: Spoofing (vydávání se za někoho jiného)[cite: 51].",
+            "Útok na Důvěrnost: Odposlech (Eavesdropping)[cite: 52]."
+        ],
+        tip: "Dostupnost je často opomíjená, ale kritická pro fungování systémů[cite: 50]."
+    },
+    {
+        title: "38. Mechanismy pro zajištění služeb",
+        points: [
+            "Integrita: SHA-256, HMAC-SHA256[cite: 55, 59].",
+            "Nepopiratelnost: RSA Signature, ECDSA[cite: 56, 59].",
+            "Autenticita: Certifikáty X.509, Kerberos[cite: 57, 59].",
+            "Důvěrnost: AES-256, ChaCha20[cite: 58, 59]."
+        ],
+        tip: "V moderní praxi se nejčastěji setkáte s algoritmem AES pro data a RSA/ECC pro klíče[cite: 59]."
+    }
+];
+
+function init() {
+    const nav = document.getElementById('navGrid');
+    const area = document.getElementById('content-area');
+
+    topics.forEach((t, i) => {
+        let btn = document.createElement('div');
+        btn.className = 'nav-item';
+        btn.id = `nav-${i}`;
+        btn.innerText = t.title;
+        btn.onclick = () => scrollToTopic(i);
+        nav.appendChild(btn);
+
+        let card = document.createElement('div');
+        card.className = 'study-card';
+        card.id = `topic-${i}`;
+        card.innerHTML = `
+            <span class="category-label">Zkušební okruh ${i+1}</span>
+            <h2>${t.title}</h2>
+            <ul class="key-points">
+                ${t.points.map(p => `<li>${p}</li>`).join('')}
+            </ul>
+            <div class="expert-tip">
+                <strong>💡 Tip pro ústní část:</strong> ${t.tip}
+            </div>
+        `;
+        area.appendChild(card);
+    });
+
+    const mainContent = document.getElementById('main-content');
+    mainContent.onscroll = () => {
+        let current = "";
+        topics.forEach((_, i) => {
+            const el = document.getElementById(`topic-${i}`);
+            if (el.offsetTop - 100 <= mainContent.scrollTop) {
+                current = i;
+            }
+        });
+        
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if (current !== "") {
+            document.getElementById(`nav-${current}`).classList.add('active');
+        }
+    };
+}
+
+function scrollToTopic(i) {
+    document.getElementById(`topic-${i}`).scrollIntoView({behavior: 'smooth'});
+}
+
+init();
+</script>
+
+</body>
+</html>
