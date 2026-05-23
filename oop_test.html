@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>OOP trest</title>
+    <style>
+        :root { --primary: #1a73e8; --bg: #f8f9fa; --text: #202124; --accent: #34a853; --warning: #ea4335; --dark-blue: #0d47a1; --purple: #6a1b9a; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text); }
+        
+        #sidebar { width: 210px; background: #fff; border-right: 1px solid #dadce0; display: flex; flex-direction: column; padding: 10px; overflow-y: auto; }
+        #sidebar h3 { margin-top: 10px; margin-bottom: 5px; color: var(--text); font-size: 1.1em; border-bottom: 1px solid #dadce0; padding-bottom: 5px; }
+        .nav-grid { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; margin-bottom: 20px; }
+        .nav-item { padding: 8px 12px; border: 1px solid #dadce0; border-radius: 6px; cursor: pointer; font-size: 0.85em; transition: 0.2s; background: white; text-align: left; line-height: 1.3; }
+        .nav-item:hover { background: #f1f3f4; border-color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .nav-item.michalek.active { background: var(--purple); border-color: var(--purple); }
+        .nav-item.machnik.active { background: var(--dark-blue); border-color: var(--dark-blue); }
+
+        #main-content { flex: 1; padding: 40px; overflow-y: auto; scroll-behavior: smooth; }
+        .header { background: linear-gradient(135deg, var(--dark-blue) 0%, var(--purple) 100%); color: white; padding: 30px; border-radius: 0 0 15px 15px; margin: -40px -40px 30px -40px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        .study-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid #dadce0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .study-card h2 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.4em; }
+        .study-card.michalek h2 { color: var(--purple); }
+        .study-card.machnik h2 { color: var(--dark-blue); }
+        
+        .key-points { list-style-type: none; padding: 0; }
+        .key-points li { margin-bottom: 12px; padding-left: 25px; position: relative; line-height: 1.5; }
+        .key-points li::before { content: '•'; font-weight: bold; font-size: 1.5em; position: absolute; left: 0; top: -5px; }
+        .study-card.michalek .key-points li::before { color: var(--purple); }
+        .study-card.machnik .key-points li::before { color: var(--dark-blue); }
+        
+        .expert-tip { padding: 15px; margin-top: 20px; border-radius: 4px; font-size: 0.95em; }
+        .study-card.michalek .expert-tip { background: #f3e5f5; border-left: 5px solid var(--purple); }
+        .study-card.machnik .expert-tip { background: #e3f2fd; border-left: 5px solid var(--dark-blue); }
+        
+        .formula { background: #f1f3f4; padding: 2px 6px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; color: #c62828; font-weight: bold; }
+        .category-label { font-size: 0.75em; text-transform: uppercase; color: white; font-weight: bold; margin-bottom: 15px; display: inline-block; padding: 3px 8px; border-radius: 4px; }
+        .category-label.michalek { background: var(--purple); }
+        .category-label.machnik { background: var(--dark-blue); }
+        .variant-separator {font-size: 2em;color: var(--primary);margin: 60px 0 20px 0; border-bottom: 3px solid var(--primary);padding-bottom: 10px;text-transform: uppercase;font-weight: bold;}
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h3>Navigace podle okruhů</h3>
+    <div class="nav-grid">
+        <div class="nav-item" onclick="scrollToVariant('varianta_e')">Varianta E</div>
+        <div class="nav-item" onclick="scrollToVariant('varianta_f')">Varianta F</div>
+        <div class="nav-item" onclick="scrollToVariant('varianta_b')">Varianta B</div>
+        <div class="nav-item" onclick="scrollToVariant('varianta_d')">Varianta D</div>
+        <div class="nav-item" onclick="scrollToVariant('neznama_varianta')">Neznámá varianta</div>
+    </div>
+</div>
+
+<div id="main-content">
+    <div class="header">
+        <h1>OOP trest</h1>
+        <p>Odpovědi které tě nachystají na test</p>
+    </div>
+    <div id="content-area"></div>
+</div>
+
+<script>
+const topics = [
+    // --- VARIANTA E ---
+    {
+        author: "varianta_e",
+        title: "1. Rozdíl mezi virtuální a čistě virtuální třídou (metodou)",
+        points: [
+            "**Virtuální metoda:** Definuje se klíčovým slovem <code>virtual</code>. Má v rodiči svou vlastní (výchozí) implementaci, ale umožňuje potomkům tuto metodu překrýt a změnit tak její chování. Tím se realizuje polymorfismus.",
+            "**Čistě virtuální metoda:** Zapisuje se s <code>= 0</code> na konci deklarace (např. <code>virtual void m() = 0;</code>). Nemá žádnou implementaci v nadřazené třídě. Vynucuje, aby potomek tuto metodu povinně implementoval.",
+            "**Rozdíl ve třídách:** Jakmile třída obsahuje alespoň jednu čistě virtuální metodu, stává se z ní tzv. **abstraktní třída** a nelze z ní přímo vytvářet instance. Pojem 'čistě virtuální třída' se v C++ neoficiálně používá pro čistě abstraktní třídy (rozhraní / interfaces), které neobsahují nic jiného než čistě virtuální metody a virtuální destruktor."
+        ],
+        tip: "Klíčový rozdíl je v povinnosti a abstrakci. Běžnou virtuální metodu potomek překrýt MŮŽE, čistě virtuální překrýt MUSÍ (pokud z něj chceme vytvářet instance)."
+    },
+    {
+        author: "varianta_e",
+        title: "2. Jaký je rozdíl mezi přetížením a překrytím? Druhy překrytí.",
+        points: [
+            "**Přetížení (Overloading):** Definování více metod se *stejným jménem* v rámci jedné třídy, které se ale liší počtem nebo datovým typem parametrů (signaturou). Řeší se staticky už během překladu kódu kompilátorem.",
+            "**Překrytí (Overriding):** Potomek nahrazuje chování (metodu) rodiče. Překrývající metoda v potomkovi musí mít naprosto *identické jméno i signaturu* (parametry) jako metoda v rodiči.",
+            "**Druhy překrytí:**<br>1) <em>Obyčejné překrytí (Shadowing/Skrytí):</em> Metoda v rodiči není virtuální. Funguje zde statická vazba – zavolá se verze metody podle typu ukazatele, nikoliv reálného objektu.<br>2) <em>Polymorfní překrytí:</em> Metoda v rodiči je <code>virtual</code>. Funguje zde dynamická vazba – díky tabulce VTable se za běhu programu zavolá překrytá metoda podle skutečného typu objektu vytvořeného v paměti."
+        ],
+        tip: "Nejčastějším příkladem přetížení jsou konstruktory – jedna třída může mít bezparametrický, s jedním parametrem, se dvěma atd."
+    },
+    {
+        author: "varianta_e",
+        title: "3. Statická a dynamická deklarace objektu - rozdíly",
+        points: [
+            "**Statická deklarace (alokace na zásobníku):** Objekt se alokuje při své definici (např. <code>Trida objekt;</code>). Jeho životnost je striktně omezena platností bloku, ve kterém byl vytvořen (např. tělo funkce). Destruktor je zavolán zcela automaticky po opuštění tohoto bloku.",
+            "**Dynamická deklarace (alokace na haldě):** Objekt vzniká ručně za běhu programu pomocí operátoru <code>new</code>, který vrací ukazatel na nově vzniklý objekt (např. <code>Trida* objekt = new Trida();</code>).",
+            "U dynamické deklarace má správu paměti na starosti programátor. Životnost objektu není omezena blokem, ale objekt v paměti zůstává, dokud není explicitně smazán voláním <code>delete objekt;</code>. Pokud to programátor neudělá, dojde k úniku paměti (memory leak)."
+        ],
+        tip: "Ke staticky deklarovaným objektům se přistupuje tečkovou konvencí (obj.metoda()), k dynamickým přes ukazatel operátorem šipky (obj->metoda())."
+    },
+    {
+        author: "varianta_e",
+        title: "4. [Kód] Třída se 3 konstruktory, abstraktní třída a dědičnost",
+        points: [
+            "<strong>Třída se 3 konstruktory a 2 atributy:</strong><br><pre><code>class A {\nprivate:\n  int x;\n  double y;\npublic:\n  A();               // 1. Bezparametrický\n  A(int x);          // 2. Konverzní\n  A(int x, double y); // 3. Úplný\n  ~A();              // Destruktor\n};\n\n// Definice jednoho konstruktoru:\nA::A(int x, double y) {\n  this->x = x;\n  this->y = y;\n}</code></pre>",
+            "<strong>Čistě abstraktní třída s potomkem (instance možná):</strong><br><pre><code>class Abst {\npublic:\n  virtual void m1() = 0; // čistě virtuální\n  virtual void m2() = 0; // čistě virtuální\n  virtual ~Abst() {}\n};\n\nclass Potomek : public Abst {\npublic:\n  void m1() override { /* tělo */ }\n  void m2() override { /* tělo */ }\n};\n// Volání: Potomek p; </code></pre>"
+        ],
+        tip: "Když definujete konstruktor vně třídy, nezapomeňte na operátor rozlišení oboru viditelnosti (::)."
+    },
+
+    // --- VARIANTA F ---
+    {
+        author: "varianta_f",
+        title: "1. Zapouzdření a jak funguje v C++",
+        points: [
+            "Zapouzdření (Encapsulation) spojuje data (atributy) a logiku (metody) do jednoho celku (třídy) a **skrývá vnitřní stav objektu před vnějším světem**.",
+            "Zabraňuje se tím narušení konzistence dat, protože okolní kód nemůže atributy měnit napřímo, ale pouze skrze veřejné rozhraní (veřejné metody, gettery/settery).",
+            "V C++ se implementuje primárně pomocí tří modifikátorů přístupu:<br><code>private:</code> položky jsou přístupné jen vlastním metodám dané třídy.<br><code>protected:</code> položky jsou přístupné třídě a jejím potomkům.<br><code>public:</code> položky jsou veřejně přístupné odkudkoliv, tvoří API třídy."
+        ],
+        tip: "Vysvětlete to na bankovním účtu: aktuální zůstatek musí být private, abychom ho zvenčí nenastavili na nesmyslnou zápornou hodnotu. Změnit ho můžeme jen přes metodu vklad() nebo vyber(), které provádí kontroly."
+    },
+    {
+        author: "varianta_f",
+        title: "2. Vztah generalizace - specifikace (s příkladem)",
+        points: [
+            "Tento vztah popisuje koncept hierarchie a **dědičnosti** (vztah typu \"IS-A\" / \"je druhem\").",
+            "**Generalizace (zobecnění):** Proces odspodu nahoru. Nacházíme společné vlastnosti konkrétních tříd a přesouváme je do jedné společné nadřazené třídy (rodiče), čímž odstraníme duplicitu kódu.",
+            "**Specifikace (specializace):** Proces shora dolů. Vytvoření konkrétnější podtřídy (potomka) rozšířením rodičovské třídy. Potomek dědí vlastnosti rodiče a přidává k nim vlastní specifika.",
+            "**Příklad:** Nadřazená (generalizovaná) třída <code>Zamestnanec</code> (Jmeno, Plat). Od ní specifikujeme potomky <code>Programator</code> (přidává atribut Jazyk) a <code>Manager</code> (přidává pole Podrizeni)."
+        ],
+        tip: "Každý Manažer je (IS-A) Zaměstnanec, proto mluvíme o vztahu specifikace. Naopak Zaměstnanec je všeobecný, generalizovaný pojem."
+    },
+    {
+        author: "varianta_f",
+        title: "3. Tabulka virtuálních metod (VTable) a k čemu je",
+        points: [
+            "Tabulka virtuálních metod (VTable) je skrytá statická struktura (pole), kterou kompilátor automaticky generuje pro každou třídu obsahující alespoň jednu virtuální metodu.",
+            "Každý vytvořený objekt této třídy obsahuje skrytý ukazatel (**vptr**) směřující na tuto tabulku VTable.",
+            "**K čemu je:** Zajišťuje **pozdní (dynamickou) vazbu** za běhu programu. Pokud voláme překrytou metodu přes ukazatel na rodiče, program nahlédne přes vptr do VTable reálného objektu a zjistí skutečnou adresu metody potomka. Tím se realizuje **polymorfismus**."
+        ],
+        tip: "Pokud by VTable neexistovala, adresa volané metody by se zjišťovala fixně hned při kompilaci podle typu ukazatele (časná vazba), což by znemožnilo polymorfní chování."
+    },
+    {
+        author: "varianta_f",
+        title: "4. [Kód] Metoda v roli objektu a abstraktní třída",
+        points: [
+            "<strong>Třída uchovávající svůj počet instancí (Metoda v roli objektu):</strong><br><pre><code>class Trida {\nprivate:\n  static int pocet; // statický atribut náleží třídě\npublic:\n  Trida() { pocet++; }\n  ~Trida() { pocet--; }\n\n  static int getPocetInstanci() { // Metoda v roli objektu\n    return pocet;\n  }\n};\nint Trida::pocet = 0; // Inicializace</code></pre>",
+            "<strong>Čistě abstraktní třída A a neabstraktní potomci B, C:</strong><br><pre><code>class A {\npublic:\n  virtual void M1() = 0;\n  virtual void M2() = 0;\n};\nclass B : public A {\npublic:\n  void M1() override { }\n  void M2() override { }\n};\nclass C : public A {\npublic:\n  void M1() override { }\n  void M2() override { }\n};</code></pre>"
+        ],
+        tip: "Metoda v roli objektu (statická metoda) se volá přímo přes jméno třídy, např. `Trida::getPocetInstanci();` bez nutnosti mít vytvořenou instanci."
+    },
+
+    // --- VARIANTA B ---
+    {
+        author: "varianta_b",
+        title: "1. Princip zasílání zpráv a příklad v C++",
+        points: [
+            "Princip zasílání zpráv je mechanismus interakce v OOP. Na rozdíl od procedurálního programování (volání funkcí nad daty) posíláme 'zprávu' přímo konkrétnímu objektu, aby vykonal požadovanou operaci.",
+            "Zpráva obsahuje: 1. **Adresáta** (objekt), 2. **Jméno metody (selektor)**, 3. **Parametry**.",
+            "Jak na zprávu objekt reálně odpoví, je skryto v jeho vlastní zapouzdřené implementaci. Zpráva určuje 'CO' se má stát, objekt definuje 'JAK'.",
+            "**Příklad v C++:** Máme-li objekt <code>Hrac hrac1;</code>, pak zaslání zprávy v C++ znamená klasické zavolání metody nad touto instancí: <code>hrac1.snizZivoty(15);</code>"
+        ],
+        tip: "Zaslání stejné zprávy `.nakresliSe()` objektu Kruh a objektu Ctverec vykoná u každého zcela jiný interní kód, což je základem polymorfismu."
+    },
+    {
+        author: "varianta_b",
+        title: "2. Kdy můžeme považovat třídu za objekt a jak to implementujeme v C++? Přístup k položkám",
+        points: [
+            "Třídu považujeme za objekt tehdy, nese-li svůj vlastní stav a chování, aniž by musela (nebo mohla) být vytvořena jakákoliv její reálná instance v paměti.",
+            "V C++ toto chování implementujeme na úrovni třídy definicí pomocí klíčového slova <code>static</code> pro atributy a metody.",
+            "**K čemu má přístup třída:** Třída (statické metody) vidí výhradně jen statické vlastnosti celé třídy. Nemá přístup k žádným instančním atributům (neexistuje u ní ukazatel `this`).",
+            "**K čemu má přístup instance:** Obyčejná instance sice primárně pracuje se svými nestatickými položkami, ale má plný přístup k přečtení i modifikaci všech statických položek patřících její třídě."
+        ],
+        tip: "Zapamatujte si: Z instance na statiku se bez problému dostanete. Ze statiky do konkrétní instance ne, protože kompilátor neví, pro kterou z instancí by měl data číst."
+    },
+    {
+        author: "varianta_b",
+        title: "3. Vysvětlete, co je tabulka virtuálních metod a proč (v jakých případech) ji potřebujeme",
+        points: [
+            "Tabulka virtuálních metod (VTable) je pole ukazatelů na funkce, které kompilátor automaticky generuje pro každou třídu využívající klíčové slovo <code>virtual</code>.",
+            "Každý vytvořený objekt v paměti obsahuje skrytý ukazatel (`vptr`), který odkazuje na VTable své konkrétní třídy.",
+            "**Kdy ji potřebujeme:** Potřebujeme ji v situacích, kdy pracujeme s objekty polymorfně – např. přes ukazatel na bázovou třídu (rodiče) voláme virtuální metodu potomka. Program díky VTable až za běhu (dynamická vazba) zjistí, jaký objekt na daném místě v paměti reálně leží, a zavolá jeho správnou překrytou metodu."
+        ],
+        tip: "Bez tabulky virtuálních metod by C++ provádělo pouze statickou vazbu (podle typu ukazatele), čímž by dědičnost ztratila schopnost měnit chování za běhu."
+    },
+
+    // --- VARIANTA D ---
+    {
+        author: "varianta_d",
+        title: "1. K čemu slouží konstruktor a destruktor? Který by měl být virtuální, kdy a proč? Příklad.",
+        points: [
+            "**Konstruktor:** Metoda se stejným jménem jako třída. Volá se automaticky při alokaci a zrodu objektu. Slouží k platné počáteční inicializaci vnitřních atributů a alokaci zdrojů.",
+            "**Destruktor:** Metoda s vlnovkou (<code>~Trida()</code>). Volá se těsně před odstraněním objektu z paměti. Slouží pro úklid – uvolnění dynamické paměti (haldy) voláním <code>delete</code>, zavírání souborů a síťových spojení.",
+            "**Který z nich má být virtuální:** Konstruktor **nikdy** nemůže být virtuální. **Destruktor MUSÍ být virtuální** v každé třídě, ze které se plánuje dědit a její objekty se budou mazat polymorfně přes ukazatel na rodiče.",
+            "**Příklad/Proč:** Mějme <code>Rodic* r = new Potomek();</code>. Při volání <code>delete r;</code> bez virtuálního destruktoru se zavolá pouze destruktor třídy `Rodic`. Paměť a zdroje alokované specificky v `Potomkovi` se neuvolní a dojde k úniku paměti (memory leak). Pokud je destruktor <code>virtual</code>, program nahlédne do VTable, zavolá nejprve destruktor Potomka a následně kaskádově destruktor Rodiče."
+        ],
+        tip: "Zlaté pravidlo C++: Pokud má třída alespoň jednu virtuální metodu, musí mít automaticky i virtuální destruktor."
+    },
+    {
+        author: "varianta_d",
+        title: "2. Kdy můžeme považovat třídu za objekt a jak to implementujeme v C++? Přístup k položkám",
+        points: [
+            "Třídu považujeme za objekt tehdy, nese-li svůj vlastní stav a chování, aniž by musela (nebo dokonce mohla) být vytvořena jakákoliv její reálná instance v paměti.",
+            "V C++ toto chování implementujeme na úrovni třídy definicí pomocí klíčového slova <code>static</code> pro atributy a metody.",
+            "**K čemu má přístup třída:** Třída (statické metody) vidí výhradně jen statické vlastnosti celé třídy. Nemá přístup k žádným instančním atributům (neexistuje u ní ukazatel `this`).",
+            "**K čemu má přístup instance:** Obyčejná instance sice primárně pracuje se svými nestatickými položkami, ale má plný přístup k přečtení i modifikaci všech statických položek patřících její třídě."
+        ],
+        tip: "Jedná se o identickou otázku jako ve variantě B – princip statických prvků sdílených napříč celou třídou bez vazby na konkrétní instanci."
+    },
+    {
+        author: "varianta_d",
+        title: "3. Co rozumíme pojmem generická třída a jak se implementuje v C++? Kdy ji potřebujeme? Příklad.",
+        points: [
+            "Generická třída (šablona / template) je mechanismus pro definování tříd nezávisle na konkrétním datovém typu. Datový typ je třídě předán jako parametr až při vytváření instance.",
+            "**Kdy ji potřebujeme:** Využívá se pro tvorbu univerzálních datových struktur (např. zásobník, pole, spojový seznam) nebo algoritmů. Nemusíme psát samostatnou třídu pro zásobník intů, zásobník floatů atd., ale napíšeme jeden univerzální kód.",
+            "V C++ se implementuje prefixem <code>template &lt;typename T&gt;</code> před deklarací třídy. Písmeno 'T' pak slouží jako zástupný datový typ.",
+            "**Příklad použití:**<br><pre><code>template &lt;typename T&gt;\nclass Ukazka {\nprivate:\n  T data;\npublic:\n  void nastavit(T hodnota) { data = hodnota; }\n};\n// Použití:\nUkazka&lt;int&gt; objektProCisla;\nUkazka&lt;string&gt; objektProText;</code></pre>"
+        ],
+        tip: "Generika výrazně šetří čas a zabraňují duplicitě kódu (princip DRY - Don't Repeat Yourself) při zachování kompletní typové kontroly během překladu."
+    },
+
+    // --- NEZNÁMÁ VARIANTA ---
+    {
+        author: "neznama_varianta",
+        title: "1. Ako funguje zapuzdrenie a pouzitie v C++",
+        points: [
+            "Zapuzdrenie (Encapsulation) spája dáta (atribúty) a kód (metódy) do jedného celku (triedy) a chráni vnútro objektu pred neoprávneným zásahom zvonku.",
+            "Prístup sa riadi pomocou kľúčových slov:<br><code>private:</code> Dáta sú skryté a dostupné iba metódam samotnej triedy.<br><code>protected:</code> Prístupné pre danú triedu a jej dedičov.<br><code>public:</code> Verejné rozhranie, cez ktoré vonkajší svet s objektom komunikuje (gettery/settery)."
+        ],
+        tip: "Umožňuje meniť vnútornú implementáciu triedy bez toho, aby sme rozbili kód, ktorý ju zvonku používa."
+    },
+    {
+        author: "neznama_varianta",
+        title: "2. Kedy a preco sa pouziva konstruktor a destruktor",
+        points: [
+            "**Konstruktor:** Používa sa **vždy pri vzniku objektu** (či už statickom na stohu, alebo dynamickom na halde). Používa sa **preto**, aby sa inicializovali hodnoty atribútov a bezpečne sa pripravil objekt na prevádzku.",
+            "**Destruktor:** Používa sa **pri zániku objektu** (opustenie bloku validity alebo volanie `delete`). Používa sa **preto**, aby sa uvoľnila dynamicky alokovaná pamäť, zatvorili otvorené súbory či uvoľnili iné systémové prostriedky, čím sa zabráni memory leakom."
+        ],
+        tip: "Destruktor triedy, z ktorej sa bude dotiť, musí byť označený ako `virtual`, inak pri mazaní cez ukazovateľ na rodiča nedôjde k vyvolaniu deštruktora potomka."
+    },
+    {
+        author: "neznama_varianta",
+        title: "3. Rozdiel medzi virtualnou a cisto virtualnou metodou",
+        points: [
+            "**Virtuálna metóda (virtual):** Má v rodičovskej triede definované základné telo (implementáciu). Potomok ju môže, ale nemusí prepísať (prepísať chovanie).",
+            "**Čisto virtuálna metóda (virtual ... = 0):** Nemá v rodičovskej triede žiadne telo. Potomok ju **musí povinne implementovať**, inak z neho nebude možné vytvoriť inštanciu a zostane taktiež abstraktný."
+        ],
+        tip: "Trieda obsahujúca aspoň jednu čisto virtuálnu metódu sa stáva abstraktnou triedou a slúži ako predpis rozhrania."
+    },
+    {
+        author: "neznama_varianta",
+        title: "4. [Kód] Trieda A s dvoma metódami a trieda B, ktorá z nej dedí",
+        points: [
+            "<strong>Implementácia jednoduchej dedičnosti v C++:</strong><br><pre><code>class A {\npublic:\n  void metoda1() { /* kód */ }\n  void metoda2() { /* kód */ }\n};\n\n// Trieda B dedí verejne z triedy A\nclass B : public A {\npublic:\n  void metodaTreti() { /* špecifická metóda pre B */ }\n};</code></pre>"
+        ],
+        tip: "Vďaka verejnej dedičnosti (`public A`) má inštancia triedy B prístup k `metoda1()` aj `metoda2()` zdedenej z áčka."
+    },
+    {
+        author: "neznama_varianta",
+        title: "5. [Kód] Trieda A obsahujúca dynamicky alokované pole prvkov triedy B",
+        points: [
+            "<strong>Dynamická alokácia poľa objektov na halde v konštruktore:</strong><br><pre><code>class B {\npublic:\n  B() { /* Vyžaduje sa predvolený konštruktor pre pole */ }\n};\n\nclass A {\nprivate:\n  B* poleB;      // Ukazovateľ na pole objektov\n  int kapacita;\npublic:\n  A(int velkost) {\n    kapacita = velkost;\n    poleB = new B[kapacita]; // Dynamická alokácia\n  }\n  ~A() {\n    delete[] poleB; // POVINNÉ uvoľnenie poľa pomocou delete[]\n  }\n};</code></pre>"
+        ],
+        tip: "Nezabúdajte na hranaté zátvorky `delete[]`. Ak by ste použili iba `delete poleB;`, uvoľní sa iba prvý objekt v poli a zvyšok spôsobí memory leak."
+    }
+];
+
+// CSS styl pro oddělovače variant (přidá se automaticky při spuštění)
+const style = document.createElement('style');
+style.innerHTML = `
+    .variant-separator {
+        font-size: 1.8em;
+        color: #1a73e8;
+        margin: 50px 0 20px 0;
+        border-bottom: 3px solid #1a73e8;
+        padding-bottom: 8px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+`;
+document.head.appendChild(style);
+
+function init() {
+    const area = document.getElementById('content-area');
+    area.innerHTML = ""; // Vyčištění plochy pro zamezení dvojitého vykreslení
+    
+    let renderedVariants = new Set();
+    let lastAuthor = "";
+
+    topics.forEach((t, i) => {
+        // Generování velkého nadpisu při změně varianty
+        if (t.author !== lastAuthor) {
+            let separator = document.createElement('h1');
+            separator.className = 'variant-separator';
+            
+            let jmenoSekce = t.author.replace('_', ' ');
+            if (t.author === 'neznama_varianta') jmenoSekce = "Neznámá varianta z textu";
+            
+            separator.innerText = jmenoSekce;
+            area.appendChild(separator);
+            lastAuthor = t.author;
+        }
+
+        let card = document.createElement('div');
+        card.className = `study-card ${t.author}`;
+        card.id = `topic-${i}`;
+        
+        // Atribut pro zacílení scrollování z bočního menu na první otázku varianty
+        if (!renderedVariants.has(t.author)) {
+            card.setAttribute('data-variant-first', t.author);
+            renderedVariants.add(t.author);
+        }
+
+        card.innerHTML = `
+            <span class="category-label ${t.author}">Okruh: ${t.author.toUpperCase().replace('_', ' ')}</span>
+            <h2>${t.title}</h2>
+            <ul class="key-points">
+                ${t.points.map(p => `<li>${p}</li>`).join('')}
+            </ul>
+            <div class="expert-tip">
+                <strong>💡 Tip ke zkoušení:</strong> ${t.tip}
+            </div>
+        `;
+        area.appendChild(card);
+    });
+}
+
+function scrollToVariant(variantName) {
+    const targetElement = document.querySelector(`[data-variant-first="${variantName}"]`);
+    if (targetElement) {
+        targetElement.scrollIntoView({behavior: 'smooth'});
+    }
+}
+
+// Spuštění inicializace po načtení DOMu
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
